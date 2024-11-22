@@ -12,7 +12,7 @@ class AboutUsWidget extends StatelessWidget {
         body: Column(
           children: [
             Text(
-              "Professional Rideshare Platform. Here we will provide you only interesting content, which you will like very much. We're dedicated to providing you the best of Rideshare, with a focus on dependability and Earning. We're working to turn our passion for Rideshare into a booming online website. We hope you enjoy our Rideshare as much as we enjoy offering them to you. I will keep posting more important posts on my Website for all of you. Please give your support and love.Professional Rideshare Platform. Here we will provide you only interesting content, which you will like very much. We're dedicated to providing you the best of Rideshare, with a focus on dependability and Earning. We're working to turn our passion for Rideshare into a booming online website. We hope you enjoy our Rideshare as much as we enjoy offering them to you. I will keep posting more important posts on my Website for all of you. Please give your support and love.",
+              "Sabay Ka? is a innovative campus-wide car pooling app designed to connect students, faculty, and staff for convenient and sustainable transportation across university campuses. Our mission is to reduce traffic congestion, lower carbon emissions, and foster community among members of higher education institutions.",
               style: PoppinsTextStyles.bodyMediumRegular,
               textAlign: TextAlign.justify,
             )

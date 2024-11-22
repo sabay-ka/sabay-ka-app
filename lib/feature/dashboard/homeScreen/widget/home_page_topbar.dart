@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sabay_ka/app/text_style.dart';
 import 'package:sabay_ka/common/theme.dart';
 import 'package:sabay_ka/feature/notification/notification_widget.dart';
 
@@ -25,6 +26,7 @@ class HomePageTopBar extends StatelessWidget {
                   color: CustomTheme.darkColor,
                 )),
           ),
+          Text('Book a Ride?', style: PoppinsTextStyles.headlineMediumRegular),
           InkWell(
             onTap: () {
               Navigator.push(

@@ -15,9 +15,9 @@ allprojects {
     repositories {
         google()
         mavenCentral()
-        maven {
-           url "${rootDir}/../plugins/gem_kit/android/build"
-        }
+        //maven {
+        //   url "${rootDir}/../plugins/gem_kit/android/build"
+        //}
     }
 }
 

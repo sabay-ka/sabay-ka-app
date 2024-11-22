@@ -10,7 +10,7 @@
 import 'package:collection/collection.dart' as _i3;
 import 'package:json_annotation/json_annotation.dart';
 import 'package:pocketbase/pocketbase.dart' as _i2;
-import 'payments_record.dart';
+import 'package:sabay_ka/models/payments_record.dart';
 
 import 'base_record.dart' as _i1;
 import 'empty_values.dart' as _i4;
@@ -27,7 +27,8 @@ enum BookingsRecordFieldsEnum {
   destLat,
   destLang,
   columnIdx,
-  rowIdx
+  rowIdx,
+  paymentRecord
 }
 
 @JsonSerializable()
@@ -44,9 +45,14 @@ final class BookingsRecord extends _i1.BaseRecord {
     required this.destLang,
     required this.columnIdx,
     required this.rowIdx,
+    this.paymentsRecord
   });
 
-  factory BookingsRecord.fromJson(Map<String, dynamic> json) {
+  factory BookingsRecord.fromJson(Map<String, dynamic> json, [ Map<String, dynamic>? paymentJson = null ]) {
+    PaymentsRecord? payment;
+    if (paymentJson != null) {
+      payment = PaymentsRecord.fromJson(paymentJson);
+    }
     return BookingsRecord(
       id: json['id'],
       created: json['created'] == null
@@ -58,11 +64,12 @@ final class BookingsRecord extends _i1.BaseRecord {
       collectionId: json['collectionId'] as String? ?? '',
       collectionName: json['collectionName'] as String? ?? '',
       passenger: json['passenger'] as String,
-      payment: PaymentsRecord.fromJson(json['payment'] as Map<String, dynamic>),
+      payment: json['payment'] as String,
       destLat: (json['destLat'] as num).toDouble(),
-      destLang: (json['destLang'] as num).toDouble(),
+      destLang: (json['destLng'] as num).toDouble(),
       columnIdx: (json['columnIdx'] as num).toDouble(),
       rowIdx: (json['rowIdx'] as num).toDouble(),
+      paymentsRecord: payment
     );
   }
 
@@ -80,7 +87,7 @@ final class BookingsRecord extends _i1.BaseRecord {
 
   final String passenger;
 
-  final PaymentsRecord payment;
+  final String payment;
 
   final double destLat;
 
@@ -89,6 +96,8 @@ final class BookingsRecord extends _i1.BaseRecord {
   final double columnIdx;
 
   final double rowIdx;
+
+  final PaymentsRecord? paymentsRecord;
 
   static const $collectionId = '8vx8f44gbe71fqc';
 
@@ -102,7 +111,7 @@ final class BookingsRecord extends _i1.BaseRecord {
       'collectionId': collectionId,
       'collectionName': collectionName,
       'passenger': passenger,
-      'payment': payment.toJson(),
+      'payment': payment,
       'destLat': destLat,
       'destLang': destLang,
       'columnIdx': columnIdx,
@@ -112,11 +121,12 @@ final class BookingsRecord extends _i1.BaseRecord {
 
   BookingsRecord copyWith({
     String? passenger,
-    PaymentsRecord? payment,
+    String? payment,
     double? destLat,
     double? destLang,
     double? columnIdx,
     double? rowIdx,
+    PaymentsRecord? paymentRecord
   }) {
     return BookingsRecord(
       id: id,
@@ -130,6 +140,7 @@ final class BookingsRecord extends _i1.BaseRecord {
       destLang: destLang ?? this.destLang,
       columnIdx: columnIdx ?? this.columnIdx,
       rowIdx: rowIdx ?? this.rowIdx,
+      paymentsRecord: paymentRecord ?? this.paymentsRecord
     );
   }
 
@@ -161,11 +172,12 @@ final class BookingsRecord extends _i1.BaseRecord {
         destLang,
         columnIdx,
         rowIdx,
+        paymentsRecord
       ];
 
   static Map<String, dynamic> forCreateRequest({
     required String passenger,
-    required PaymentsRecord payment,
+    required String payment,
     required double destLat,
     required double destLang,
     required double columnIdx,

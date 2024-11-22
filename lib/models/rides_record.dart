@@ -8,13 +8,14 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:collection/collection.dart' as _i3;
+import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:pocketbase/pocketbase.dart' as _i2;
+import 'package:sabay_ka/models/bookings_record.dart';
 import 'drivers_record.dart';
 
 import 'base_record.dart' as _i1;
 import 'empty_values.dart' as _i4;
-
 
 enum RidesRecordFieldsEnum {
   id,
@@ -58,7 +59,7 @@ final class RidesRecord extends _i1.BaseRecord {
       id: json['id'],
       created: json['created'] == null
           ? _i4.EmptyDateTime()
-          : DateTime.tryParse(json['created'] as String) ?? _i4.EmptyDateTime(), 
+          : DateTime.tryParse(json['created'] as String) ?? _i4.EmptyDateTime(),
       updated: json['updated'] == null
           ? _i4.EmptyDateTime()
           : DateTime.tryParse(json['updated'] as String) ?? _i4.EmptyDateTime(),
@@ -66,8 +67,15 @@ final class RidesRecord extends _i1.BaseRecord {
       collectionName: json['collectionName'],
       parkingLat: (json['parkingLat'] as num).toDouble(),
       parkingLng: (json['parkingLng'] as num).toDouble(),
-      status: json['status'],       
-      driver: DriversRecord.fromJson(json['expand']['driver'] as Map<String, dynamic>),
+      status: RidesRecordStatusEnum.values.firstWhere(
+          (e) => e.toString() == 'RidesRecordStatusEnum.${json['status']}'),
+      driver: DriversRecord.fromJson(
+          json['expand']['driver'] as Map<String, dynamic>),
+      bookings: json['expand']['bookings'] == null
+          ? null
+          : (json['expand']['bookings'] as List<Map<String, dynamic>>).map((e) {
+              return BookingsRecord.fromJson(e);
+            }).toList(),
     );
   }
   factory RidesRecord.fromRecordModel(_i2.RecordModel recordModel) {
@@ -90,7 +98,7 @@ final class RidesRecord extends _i1.BaseRecord {
 
   final DriversRecord driver;
 
-  final List<String>? bookings;
+  final List<BookingsRecord>? bookings;
 
   static const $collectionId = '2cwnig4w0yzy9y5';
 
@@ -109,16 +117,17 @@ final class RidesRecord extends _i1.BaseRecord {
       'driver': driver.id,
       'expand': {
         'driver': driver.toJson(),
+        'bookings': bookings?.map((e) => e.toJson()).toList(),
       },
     };
-  } 
+  }
 
   RidesRecord copyWith({
     double? parkingLat,
     double? parkingLng,
     RidesRecordStatusEnum? status,
     DriversRecord? driver,
-    List<String>? bookings,
+    List<BookingsRecord>? bookings,
   }) {
     return RidesRecord(
       id: id,
@@ -168,7 +177,7 @@ final class RidesRecord extends _i1.BaseRecord {
     required double parkingLng,
     required RidesRecordStatusEnum status,
     required DriversRecord driver,
-    List<String>? bookings,
+    List<BookingsRecord>? bookings,
   }) {
     final jsonMap = RidesRecord(
       id: '',

@@ -6,15 +6,18 @@ import 'package:sabay_ka/common/utils/size_utils.dart';
 import 'package:sabay_ka/common/widget/common_popup_box.dart';
 import 'package:sabay_ka/feature/auth/welcomeScreen/widget/welcome_widget.dart';
 import 'package:sabay_ka/feature/drawer/aboutUs/about_us_widget.dart';
-import 'package:sabay_ka/feature/drawer/complain/complain_widget.dart';
 import 'package:sabay_ka/feature/drawer/helpSupport/help_support_widget.dart';
 import 'package:sabay_ka/feature/drawer/history/history_widget.dart';
-import 'package:sabay_ka/feature/drawer/referral/referral_widget.dart';
 import 'package:sabay_ka/feature/drawer/settings/setting_widget.dart';
+import 'package:sabay_ka/main.dart';
+import 'package:sabay_ka/models/users_record.dart';
+import 'package:sabay_ka/services/pocketbase_service.dart';
 
 import '../common/theme.dart';
 
 class CustomDrawer extends StatelessWidget {
+  final UsersRecord user = locator<PocketbaseService>().user!;
+
   CustomDrawer({super.key});
   void handleLogout(BuildContext context) {
     Navigator.of(context).pop();
@@ -53,7 +56,7 @@ class CustomDrawer extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(12.0),
             child: Text(
-              "Nate Samson",
+              "${user.firstName} ${user.lastName}",
               style: PoppinsTextStyles.titleMediumRegular
                   .copyWith(fontWeight: FontWeight.w500),
             ),
@@ -120,8 +123,6 @@ class CustomDrawer extends StatelessWidget {
 
   final List drawerItems = [
     "History",
-    "Complain",
-    "Referral",
     "About Us",
     "Settings",
     "Help & Suport",
@@ -129,8 +130,6 @@ class CustomDrawer extends StatelessWidget {
   ];
   final List drawerItemIcons = [
     Assets.historyIcon,
-    Assets.complainIcon,
-    Assets.referralIcon,
     Assets.aboutUsIcon,
     Assets.settingsIcon,
     Assets.helpAndSupportIcon,
@@ -138,8 +137,6 @@ class CustomDrawer extends StatelessWidget {
   ];
   final List screens = [
     const HistoryWidget(),
-    const ComplainWidget(),
-    ReferralWidget(),
     const AboutUsWidget(),
     SettingWidget(),
     const HelpSupportWidget(),

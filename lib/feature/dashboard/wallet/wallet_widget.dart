@@ -3,10 +3,10 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:sabay_ka/app/text_style.dart';
 import 'package:sabay_ka/common/constant/assets.dart';
 import 'package:sabay_ka/common/theme.dart';
-import 'package:sabay_ka/common/utils/size_utils.dart';
 import 'package:sabay_ka/common/widget/common_container.dart';
-import 'package:sabay_ka/common/widget/custom_button.dart';
-import 'package:sabay_ka/feature/dashboard/wallet/add_money_widget.dart';
+import 'dart:async';
+import 'package:sabay_ka/main.dart';
+import 'package:sabay_ka/services/pocketbase_service.dart';
 
 class WalletWidget extends StatelessWidget {
   const WalletWidget({super.key});
@@ -14,151 +14,172 @@ class WalletWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CommonContainer(
-      appBarTitle: "Wallet",
+      appBarTitle: "Payments",
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Align(
-            alignment: Alignment.centerRight,
-            child: SizedBox(
-              width: SizeUtils.width / 3,
-              child: CustomRoundedButtom(
-                fontWeight: FontWeight.w500,
-                title: "Add Money",
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => AddMoneyWidget(),
-                    ),
-                  );
-                },
-                borderColor: CustomTheme.appColor,
-                color: Colors.transparent,
-                textColor: CustomTheme.appColor,
-              ),
-            ),
-          ),
-          SizedBox(height: 10.hp),
-          Row(
-            children: [
-              Expanded(
-                child: Container(
-                  height: SizeUtils.width / 3,
-                  decoration: BoxDecoration(
-                    color: CustomTheme.appColor.withOpacity(0.08),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: CustomTheme.appColor),
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Text(
-                        "\$500",
-                        style: PoppinsTextStyles.titleMediumRegular,
-                      ),
-                      Text(
-                        "Available Balance",
-                        style: PoppinsTextStyles.subheadSmallRegular
-                            .copyWith(color: CustomTheme.darkColor),
-                      )
-                    ],
-                  ),
-                ),
-              ),
-              SizedBox(width: 30.wp),
-              Expanded(
-                child: Container(
-                  height: SizeUtils.width / 3,
-                  decoration: BoxDecoration(
-                    color: CustomTheme.appColor.withOpacity(0.08),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: CustomTheme.appColor),
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Text(
-                        "\$200",
-                        style: PoppinsTextStyles.titleMediumRegular,
-                      ),
-                      Text(
-                        "Total Expend",
-                        style: PoppinsTextStyles.subheadSmallRegular
-                            .copyWith(color: CustomTheme.darkColor),
-                      )
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 20.hp),
+          //  //Align(
+          //  alignment: Alignment.centerRight,
+          //  child: SizedBox(
+          //    width: SizeUtils.width / 3,
+          //    child: CustomRoundedButtom(
+          //      fontWeight: FontWeight.w500,
+          //      title: "Add Money",
+          //      onPressed: () {
+          //        Navigator.push(
+          //          context,
+          //          MaterialPageRoute(
+          //            builder: (context) => AddMoneyWidget(),
+          //          ),
+          //        );
+          //      },
+          //      borderColor: CustomTheme.appColor,
+          //      color: Colors.transparent,
+          //      textColor: CustomTheme.appColor,
+          //    ),
+          //  ),
+          //),
+          //SizedBox(height: 10.hp),
+          //Row(
+          //  children: [
+          //    Expanded(
+          //      child: Container(
+          //        height: SizeUtils.width / 3,
+          //        decoration: BoxDecoration(
+          //          color: CustomTheme.appColor.withOpacity(0.08),
+          //          borderRadius: BorderRadius.circular(12),
+          //          border: Border.all(color: CustomTheme.appColor),
+          //        ),
+          //        child: Column(
+          //          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          //          children: [
+          //            Text(
+          //              "\$500",
+          //              style: PoppinsTextStyles.titleMediumRegular,
+          //            ),
+          //            Text(
+          //              "Available Balance",
+          //              style: PoppinsTextStyles.subheadSmallRegular
+          //                  .copyWith(color: CustomTheme.darkColor),
+          //            )
+          //          ],
+          //        ),
+          //      ),
+          //    ),
+          //    SizedBox(width: 30.wp),
+          //    Expanded(
+          //      child: Container(
+          //        height: SizeUtils.width / 3,
+          //        decoration: BoxDecoration(
+          //          color: CustomTheme.appColor.withOpacity(0.08),
+          //          borderRadius: BorderRadius.circular(12),
+          //          border: Border.all(color: CustomTheme.appColor),
+          //        ),
+          //        child: Column(
+          //          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          //          children: [
+          //            Text(
+          //              "\$200",
+          //              style: PoppinsTextStyles.titleMediumRegular,
+          //            ),
+          //            Text(
+          //              "Total Expend",
+          //              style: PoppinsTextStyles.subheadSmallRegular
+          //                  .copyWith(color: CustomTheme.darkColor),
+          //            )
+          //          ],
+          //        ),
+          //      ),
+          //    ),
+          //  ],
+          //),
+          //SizedBox(height: 20.hp),
           Text(
-            "Transaction",
+            "Payment History",
             style: PoppinsTextStyles.subheadLargeRegular.copyWith(
               fontWeight: FontWeight.w600,
               color: CustomTheme.darkColor,
             ),
           ),
-          ListView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            scrollDirection: Axis.vertical,
-            itemCount: 15,
-            itemBuilder: (context, index) {
-              return Container(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                margin: const EdgeInsets.symmetric(vertical: 8),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: CustomTheme.appColor.withOpacity(0.5),
-                  ),
-                ),
-                child: ListTile(
-                    leading: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: index.isEven
-                            ? const Color(0xFFFFCDD2)
-                            : const Color(0xFFC8E6C9),
-                      ),
-                      child: SvgPicture.asset(
-                        index.isEven ? Assets.upIcon : Assets.downIcon,
-                        color: index.isEven
-                            ? const Color(0xFFD32F2F)
-                            : const Color(0xFF388E3D),
-                      ),
-                    ),
-                    title: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Welton",
-                            style:
-                                PoppinsTextStyles.subheadLargeRegular.copyWith(
-                              fontWeight: FontWeight.w600,
-                              color: CustomTheme.darkColor,
-                            ),
+          FutureBuilder(
+              future: locator<PocketbaseService>().getUserPayments(),
+              builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  return Center(child: Text(snapshot.error.toString()));
+                }
+                if (snapshot.hasData) {
+                  final payments = snapshot.data;
+                  return ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    scrollDirection: Axis.vertical,
+                    itemCount: payments!.length,
+                    itemBuilder: (context, index) {
+                      return Container(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        margin: const EdgeInsets.symmetric(vertical: 8),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: CustomTheme.appColor.withOpacity(0.5),
                           ),
-                          Text(
-                            "Today at 09:20 am",
-                            style: PoppinsTextStyles.bodyMediumRegular
-                                .copyWith(fontSize: 12),
-                          )
-                        ]),
-                    trailing: Text(
-                      "${index.isEven ? "" : "-"}\$570.00",
-                      style: PoppinsTextStyles.subheadLargeRegular.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: CustomTheme.darkColor,
-                      ),
-                    )),
-              );
-            },
-          ),
+                        ),
+                        child: ListTile(
+                            leading: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: index.isEven
+                                    ? const Color(0xFFFFCDD2)
+                                    : const Color(0xFFC8E6C9),
+                              ),
+                              child: SvgPicture.asset(
+                                payments[index].getStringValue('status') ==
+                                        'completed'
+                                    ? Assets.upIcon
+                                    : Assets.downIcon,
+                                color:
+                                    payments[index].getStringValue('status') ==
+                                            'completed'
+                                        ? const Color(0xFFD32F2F)
+                                        : const Color(0xFF388E3D),
+                              ),
+                            ),
+                            title: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    payments[index].getStringValue('status') ==
+                                            'completed'
+                                        ? "Paid"
+                                        : "Pending",
+                                    style: PoppinsTextStyles.subheadLargeRegular
+                                        .copyWith(
+                                      fontWeight: FontWeight.w600,
+                                      color: CustomTheme.darkColor,
+                                    ),
+                                  ),
+                                  Text(
+                                    payments[index].getStringValue('created'),
+                                    style: PoppinsTextStyles.bodyMediumRegular
+                                        .copyWith(fontSize: 12),
+                                  )
+                                ]),
+                            trailing: Text(
+                              "PHP ${payments[index].getDoubleValue('amount')}",
+                              style: PoppinsTextStyles.subheadLargeRegular
+                                  .copyWith(
+                                fontWeight: FontWeight.w600,
+                                color: CustomTheme.darkColor,
+                              ),
+                            )),
+                      );
+                    },
+                  );
+                } else {
+                  return const Center(child: CircularProgressIndicator());
+                }
+              }),
         ],
       ),
     );

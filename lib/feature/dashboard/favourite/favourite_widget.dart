@@ -16,7 +16,7 @@ class FavouriteWidget extends StatelessWidget {
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         scrollDirection: Axis.vertical,
-        itemCount: 15,
+        itemCount: 1,
         itemBuilder: (context, index) {
           return Container(
             padding: const EdgeInsets.symmetric(vertical: 8),
@@ -33,14 +33,14 @@ class FavouriteWidget extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Office",
+                      "Home",
                       style: PoppinsTextStyles.subheadLargeRegular.copyWith(
                         fontWeight: FontWeight.w600,
                         color: CustomTheme.darkColor,
                       ),
                     ),
                     Text(
-                      "2972 Westheimer Rd. Santa Ana, Illinois 85486 ",
+                      "Lorem Ipsum Street, 123",
                       style: PoppinsTextStyles.bodyMediumRegular
                           .copyWith(fontSize: 12),
                     )

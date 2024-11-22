@@ -8,6 +8,7 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:collection/collection.dart' as _i3;
+import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:pocketbase/pocketbase.dart' as _i2;
 
@@ -31,6 +32,9 @@ enum DriversRecordFieldsEnum {
 
   /// THIS FIELD IS ONLY FOR CREATING AN AUTH TYPE RECORD
   passwordConfirm,
+  firstName,
+  lastName,
+  phoneNumber,
   plateNumber,
   avatar,
   vehicle,
@@ -49,6 +53,9 @@ final class DriversRecord extends _i1.AuthRecord {
     required super.email,
     required super.emailVisibility,
     required super.verified,
+    required this.firstName,
+    required this.lastName,
+    required this.phoneNumber,
     required this.plateNumber,
     this.avatar,
     this.vehicle,
@@ -66,6 +73,9 @@ final class DriversRecord extends _i1.AuthRecord {
       email: json['email'],
       emailVisibility: json['emailVisibility'],
       verified: json['verified'],
+      firstName: json['firstName'],
+      lastName: json['lastName'],
+      phoneNumber: json['phoneNumber'],
       plateNumber: json['plateNumber'],
       avatar: json['avatar'],
       vehicle: json['vehicle'],
@@ -84,6 +94,12 @@ final class DriversRecord extends _i1.AuthRecord {
     };
     return DriversRecord.fromJson(extendedJsonMap);
   }
+
+  final String firstName;
+
+  final String lastName;
+
+  final String phoneNumber;
 
   final String plateNumber;
 
@@ -108,6 +124,9 @@ final class DriversRecord extends _i1.AuthRecord {
       'email': email,
       'emailVisibility': emailVisibility,
       'verified': verified,
+      'firstName': firstName,
+      'lastName': lastName,
+      'phoneNumber': phoneNumber,
       'plateNumber': plateNumber,
       'avatar': avatar,
       'vehicle': vehicle,
@@ -120,6 +139,9 @@ final class DriversRecord extends _i1.AuthRecord {
     String? email,
     bool? emailVisibility,
     bool? verified,
+    String? firstName,
+    String? lastName,
+    String? phoneNumber,
     String? plateNumber,
     String? avatar,
     dynamic vehicle,
@@ -135,6 +157,9 @@ final class DriversRecord extends _i1.AuthRecord {
       email: email ?? this.email,
       emailVisibility: emailVisibility ?? this.emailVisibility,
       verified: verified ?? this.verified,
+      firstName: firstName ?? this.firstName,
+      lastName: lastName ?? this.lastName,
+      phoneNumber: phoneNumber ?? this.phoneNumber,
       plateNumber: plateNumber ?? this.plateNumber,
       avatar: avatar ?? this.avatar,
       vehicle: vehicle ?? this.vehicle,
@@ -175,6 +200,9 @@ final class DriversRecord extends _i1.AuthRecord {
     required String email,
     required bool emailVisibility,
     required bool verified,
+    required String firstName,
+    required String lastName,
+    required String phoneNumber,
     required String plateNumber,
     String? avatar,
     dynamic vehicle,
@@ -190,6 +218,9 @@ final class DriversRecord extends _i1.AuthRecord {
       email: email,
       emailVisibility: emailVisibility,
       verified: verified,
+      firstName: firstName,
+      lastName: lastName,
+      phoneNumber: phoneNumber,
       plateNumber: plateNumber,
       avatar: avatar,
       vehicle: vehicle,
@@ -211,6 +242,18 @@ final class DriversRecord extends _i1.AuthRecord {
     result.addAll({
       DriversRecordFieldsEnum.verified.name:
           jsonMap[DriversRecordFieldsEnum.verified.name]
+    });
+    result.addAll({
+      DriversRecordFieldsEnum.firstName.name:
+          jsonMap[DriversRecordFieldsEnum.firstName.name]
+    });
+    result.addAll({
+      DriversRecordFieldsEnum.lastName.name:
+          jsonMap[DriversRecordFieldsEnum.lastName.name]
+    });
+    result.addAll({
+      DriversRecordFieldsEnum.phoneNumber.name:
+          jsonMap[DriversRecordFieldsEnum.phoneNumber.name]
     });
     result.addAll({
       DriversRecordFieldsEnum.plateNumber.name:

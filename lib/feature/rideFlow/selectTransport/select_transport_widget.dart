@@ -19,7 +19,6 @@ class SelectTransportWidget extends StatelessWidget {
           itemBuilder: (context, index) {
             return CommonGridViewContainer(
                 onContainerPress: () {
-                  print("hello");
                   Navigator.push(
                     context,
                     MaterialPageRoute(

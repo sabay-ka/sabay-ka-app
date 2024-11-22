@@ -73,7 +73,8 @@ final class RequestsRecord extends _i1.BaseRecord {
       destLong: (json['destLong'] as num).toDouble(),
       rowIdx: (json['rowIdx'] as num).toDouble(),
       columnIdx: (json['columnIdx'] as num).toDouble(),
-      status: json['status']
+      status: RequestsRecordStatusEnum.values
+          .firstWhere((e) => e.toString() == 'RequestsRecordStatusEnum.${json['status']}'), 
     );
   } 
 
