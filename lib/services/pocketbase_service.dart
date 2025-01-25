@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_config/flutter_config.dart';
 import 'package:flutter_custom_tabs/flutter_custom_tabs.dart';
 import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
 import 'package:pocketbase/pocketbase.dart';
@@ -13,9 +12,11 @@ import 'package:sabay_ka/models/rides_record.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sabay_ka/models/users_record.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 abstract class PocketbaseService extends ChangeNotifier {
   late PocketBase _client;
+  late String _baseUrl;
   UsersRecord? user;
   bool get isSignedIn => user != null;
   Future signInWithEmailAndPassword(
@@ -26,7 +27,7 @@ abstract class PocketbaseService extends ChangeNotifier {
       {required String firstName,
       required String lastName,
       required String phoneNumber});
-  Future<List<RidesRecord>> getRides();
+  Future<List<RidesRecord>> getRides(bool isFromTomasClaudio);
   Future<RidesRecord> getRide(String id);
   Future<List<GeoPoint>> getRideRoute(String id);
   Future<List<RidesRecord>> getPreviousRides();
@@ -42,15 +43,21 @@ abstract class PocketbaseService extends ChangeNotifier {
       required double destLat,
       required double destLong,
       required int rowIdx,
-      required int columnIdx});
+      required int columnIdx,
+      required bool isFromTomasClaudio,
+      required String note});
   Future<RequestsRecord> getRequest(String id);
   void subscribeToRequest(
       String id, Function(RecordSubscriptionEvent) callback);
   void unsubscribeToRequest(String id);
   Future<RequestsRecord> cancelRequest(String id);
   Future<RequestsRecord?> getOngoingRequest();
-  Future<BookingsRecord> getBookingByRequest(String requestId);
-  Future<BookingsRecord> getUserBookings();
+  Future<List<BookingsRecord>> getUserBookings();
+  void subscribeToBookings(Function(RecordSubscriptionEvent) callback);
+  void unsubscribeToBookings();
+  void subscribeToBooking(
+      String id, Function(RecordSubscriptionEvent) callback);
+  void unsubscribeToBooking(String id);
   Future<ReviewsRecord> createReview(
       {required String bookingId,
       required String content,
@@ -58,13 +65,17 @@ abstract class PocketbaseService extends ChangeNotifier {
   Future<void> deleteReview(String reviewId);
   Future<List<RecordModel>> getUserPayments();
   Future<PaymentsRecord> getPayment(String id);
-  Future<void> subscribeToPayment(String id, Function(RecordSubscriptionEvent) callback); 
+  void subscribeToPayments(Function(RecordSubscriptionEvent) callback);
+  void unsubscribeToPayments();
+  Future<void> subscribeToPayment(
+      String id, Function(RecordSubscriptionEvent) callback);
   void unsubscribeToPayment(String id);
 }
 
 class PocketbaseServiceImpl extends PocketbaseService {
   PocketbaseServiceImpl._create(String url, AsyncAuthStore authStore) {
     _client = PocketBase(url, authStore: authStore);
+    _baseUrl = url;
     if (_client.authStore.model != null) {
       user = UsersRecord.fromJson(_client.authStore.model.toJson());
     } else {
@@ -81,7 +92,7 @@ class PocketbaseServiceImpl extends PocketbaseService {
   }
 
   static Future<PocketbaseService> create() async {
-    final String? baseUrl = FlutterConfig.get('POCKETBASE_URL');
+    final baseUrl = dotenv.env['POCKETBASE_URL'];
     if (baseUrl == null) {
       throw Exception('POCKETBASE_URL is not set in .env');
     }
@@ -135,6 +146,7 @@ class PocketbaseServiceImpl extends PocketbaseService {
       'firstName': firstName,
       'lastName': lastName,
       'phoneNumber': phoneNumber,
+      'emailVisibility': true,
     });
   }
 
@@ -144,30 +156,36 @@ class PocketbaseServiceImpl extends PocketbaseService {
   }
 
   @override
-  Future<List<RidesRecord>> getRides() async {
-    final rides = await _client
-        .collection('rides')
-        .getFullList(expand: 'driver,bookings', filter: 'status = "waiting"');
+  Future<List<RidesRecord>> getRides(bool isFromTomasClaudio) async {
+    final rides = await _client.collection('rides').getFullList(
+        expand: 'driver,bookings',
+        filter:
+            'status = "waiting" && isFromTomasClaudio = $isFromTomasClaudio');
     return rides.map((ride) => RidesRecord.fromJson(ride.toJson())).toList();
   }
 
   @override
   Future<RidesRecord> getRide(String id) async {
-    final ride = await _client.collection('rides').getOne(id, expand: 'driver,bookings');
+    final ride =
+        await _client.collection('rides').getOne(id, expand: 'driver,bookings');
     return RidesRecord.fromJson(ride.toJson());
   }
 
   @override
   Future<List<GeoPoint>> getRideRoute(String id) async {
     final res = await http.get(
-      Uri.parse('${FlutterConfig.get('POCKETBASE_URL')}/api/rides/$id/route'),
+      Uri.parse('$_baseUrl/api/rides/$id/route'),
     );
 
     if (res.statusCode != 200) {
       throw Exception('Failed to get route');
     }
 
-    final points = jsonDecode(res.body)["points"];
+    final json = jsonDecode(res.body);
+    if (json["points"] == null) {
+      return [];
+    }
+    final points = json["points"];
     final List<GeoPoint> geopoints = [];
     for (final point in points) {
       geopoints.add(GeoPoint(latitude: point[1], longitude: point[0]));
@@ -218,14 +236,19 @@ class PocketbaseServiceImpl extends PocketbaseService {
       String rideId, double destLat, double destLong) async {
     final res = await http.get(
       Uri.parse(
-          '${FlutterConfig.get('POCKETBASE_URL')}/api/rides/$rideId/price?destLat=$destLat&destLng=$destLong'),
+          '$_baseUrl/api/rides/$rideId/price?destLat=$destLat&destLng=$destLong'),
     );
 
     if (res.statusCode != 200) {
       throw Exception('Failed to get price');
     }
 
-    return jsonDecode(res.body)["amount"] as double;
+    final amount = jsonDecode(res.body)["amount"];
+    if (amount is double) {
+      return amount;
+    }
+
+    return amount.toDouble();
   }
 
   @override
@@ -234,7 +257,9 @@ class PocketbaseServiceImpl extends PocketbaseService {
       required double destLat,
       required double destLong,
       required int rowIdx,
-      required int columnIdx}) async {
+      required int columnIdx,
+      required bool isFromTomasClaudio,
+      required String note}) async {
     if (user == null) {
       throw Exception('User is not signed in');
     }
@@ -246,6 +271,7 @@ class PocketbaseServiceImpl extends PocketbaseService {
       'rowIdx': rowIdx,
       'columnIdx': columnIdx,
       'status': 'pending',
+      'note': note,
     });
     return RequestsRecord.fromJson(request.toJson());
   }
@@ -286,21 +312,13 @@ class PocketbaseServiceImpl extends PocketbaseService {
   }
 
   @override
-  Future<BookingsRecord> getBookingByRequest(String requestId) async {
-    final booking = await _client
-        .collection('bookings')
-        .getFirstListItem('request = "$requestId"', expand: 'payment');
-    return BookingsRecord.fromJson(booking.toJson(), booking.toJson()['expand']['payment']);
-  }
-
-  @override
-  Future<BookingsRecord> getUserBookings() async {
+  Future<List<BookingsRecord>> getUserBookings() async {
     final bookings = await _client
         .collection('bookings')
         .getFullList(filter: 'passenger = "${user?.id}"');
     return bookings
         .map((booking) => BookingsRecord.fromJson(booking.toJson()))
-        .first;
+        .toList();
   }
 
   @override
@@ -339,9 +357,10 @@ class PocketbaseServiceImpl extends PocketbaseService {
   }
 
   @override
-    Future<void> subscribeToPayment(String id, Function(RecordSubscriptionEvent p1) callback) async {
-      _client.collection('payments').subscribe(id, callback);
-    }
+  Future<void> subscribeToPayment(
+      String id, Function(RecordSubscriptionEvent p1) callback) async {
+    _client.collection('payments').subscribe(id, callback);
+  }
 
   @override
   Future<void> unsubscribeToPayment(String id) async {
@@ -349,8 +368,39 @@ class PocketbaseServiceImpl extends PocketbaseService {
   }
 
   @override
-    Future<PaymentsRecord> getPayment(String id) async {
-      final payment = await _client.collection('payments').getOne(id);
-      return PaymentsRecord.fromJson(payment.toJson());
-    }
+  Future<PaymentsRecord> getPayment(String id) async {
+    final payment = await _client.collection('payments').getOne(id);
+    return PaymentsRecord.fromJson(payment.toJson());
+  }
+
+  @override
+  void subscribeToBooking(
+      String id, Function(RecordSubscriptionEvent p1) callback) {
+    _client.collection('bookings').subscribe(id, callback);
+  }
+
+  @override
+  void unsubscribeToBooking(String id) {
+    _client.collection('bookings').unsubscribe(id);
+  }
+
+  @override
+  void subscribeToBookings(Function(RecordSubscriptionEvent p1) callback) {
+    _client.collection('bookings').subscribe('*', callback);
+  }
+
+  @override
+  void unsubscribeToBookings() {
+    _client.collection('bookings').unsubscribe('*');
+  }
+
+  @override
+   void subscribeToPayments(Function(RecordSubscriptionEvent p1) callback) {
+    _client.collection('payments').subscribe('*', callback); 
+  }
+
+  @override
+  void unsubscribeToPayments() {
+    _client.collection('payments').unsubscribe('*');
+  }
 }

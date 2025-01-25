@@ -7,7 +7,6 @@ import 'package:sabay_ka/common/utils/snackbar_utils.dart';
 import 'package:sabay_ka/common/widget/custom_button.dart';
 import 'package:sabay_ka/feature/dashboard/dashboard_widget.dart';
 import 'package:sabay_ka/main.dart';
-import 'package:sabay_ka/models/payments_record.dart';
 import 'package:sabay_ka/models/requests_record.dart';
 import 'package:sabay_ka/models/rides_record.dart';
 import 'package:sabay_ka/services/pocketbase_service.dart';
@@ -19,6 +18,7 @@ class WatchRide extends StatefulWidget {
   final String requestId;
   final String rideId;
   final double? price;
+  final bool isPaid = false;
 
   @override
   State<WatchRide> createState() => _WatchRideState();
@@ -28,27 +28,39 @@ class RequestandRideRecord {
   final RequestsRecord request;
   final RidesRecord ride;
   final double price;
+  final bool isPaid;
 
-  RequestandRideRecord(this.request, this.ride, this.price);
+  RequestandRideRecord(this.request, this.ride, this.price, this.isPaid);
 }
 
 class _WatchRideState extends State<WatchRide> {
   late RequestsRecord _prevRequest;
   late RidesRecord _prevRide;
   late double _price;
-  late String _paymentId;
+  late bool _prevIsPaid;
 
   late final StreamController<RequestandRideRecord> _controller =
       StreamController<RequestandRideRecord>(
     onListen: () async {
       // First fetch
       if (!_controller.isClosed) {
-        final [request, ride] = await Future.wait([
+        final [request, ride, paymentss] = await Future.wait([
           locator<PocketbaseService>().getRequest(widget.requestId),
           locator<PocketbaseService>().getRide(widget.rideId),
+          locator<PocketbaseService>().getUserPayments(),
         ]);
         _prevRequest = request as RequestsRecord;
         _prevRide = ride as RidesRecord;
+
+        final payments = paymentss as List<RecordModel>;
+        _prevIsPaid = false;
+        for (final payment in payments) {
+          if (payment.getStringValue('status') == 'completed') {
+            _prevIsPaid = true;
+            break;
+          }
+        }
+
         if (widget.price != null) {
           _price = widget.price!;
         } else {
@@ -60,6 +72,7 @@ class _WatchRideState extends State<WatchRide> {
           _prevRequest,
           _prevRide,
           _price,
+          _prevIsPaid,
         ));
       }
 
@@ -70,8 +83,8 @@ class _WatchRideState extends State<WatchRide> {
           _prevRequest =
               await locator<PocketbaseService>().getRequest(widget.requestId);
 
-          _controller
-              .add(RequestandRideRecord(_prevRequest, _prevRide, _price));
+          _controller.add(RequestandRideRecord(
+              _prevRequest, _prevRide, _price, _prevIsPaid));
         }
       });
       locator<PocketbaseService>().subscribeToRide(widget.rideId,
@@ -79,32 +92,29 @@ class _WatchRideState extends State<WatchRide> {
         if (!_controller.isClosed) {
           _prevRide = await locator<PocketbaseService>().getRide(widget.rideId);
 
-          _controller
-              .add(RequestandRideRecord(_prevRequest, _prevRide, _price));
+          _controller.add(RequestandRideRecord(
+              _prevRequest, _prevRide, _price, _prevIsPaid));
+        }
+      });
+      locator<PocketbaseService>().subscribeToPayments((event) async {
+        if (!_controller.isClosed) {
+          final payments = await locator<PocketbaseService>().getUserPayments();
+          _prevIsPaid = false;
+          for (final payment in payments) {
+            if (payment.getStringValue('status') == 'completed') {
+              _prevIsPaid = true;
+              break;
+            }
+          }
+
+          _controller.add(RequestandRideRecord(
+              _prevRequest, _prevRide, _price, _prevIsPaid));
         }
       });
     },
   );
 
-  late final StreamController<bool> _isPaidController =
-      StreamController(onListen: () async {
-    if (!_isPaidController.isClosed) {
-      final booking = await locator<PocketbaseService>()
-          .getBookingByRequest(widget.requestId);
-      _paymentId = booking.payment;
-      _isPaidController.add(
-          booking.paymentsRecord!.status == PaymentsRecordStatusEnum.completed);
-    }
-
-    locator<PocketbaseService>().subscribeToPayment(_paymentId, (event) async {
-      if (!_isPaidController.isClosed) {
-        final payment =
-            await locator<PocketbaseService>().getPayment(_paymentId);
-        _isPaidController
-            .add(payment.status == PaymentsRecordStatusEnum.completed);
-      }
-    });
-  });
+  Stream<RequestandRideRecord> get _requestRide => _controller.stream;
 
   @override
   void initState() {
@@ -144,15 +154,8 @@ class _WatchRideState extends State<WatchRide> {
     _controller.close();
     locator<PocketbaseService>().unsubscribeToRequest(widget.requestId);
     locator<PocketbaseService>().unsubscribeToRide(widget.rideId);
-    if (!_isPaidController.isClosed) {
-      _isPaidController.close();
-    }
-    locator<PocketbaseService>().unsubscribeToPayment(_paymentId);
     super.dispose();
   }
-
-  Stream<RequestandRideRecord> get _requestRide => _controller.stream;
-  Stream<bool> get _isPaid => _isPaidController.stream;
 
   MapController controller = MapController(
       initMapWithUserPosition: UserTrackingOption(enableTracking: true),
@@ -186,41 +189,25 @@ class _WatchRideState extends State<WatchRide> {
                 final request = snapshot.data!.request;
                 final ride = snapshot.data!.ride;
                 final price = snapshot.data!.price;
+                final isPaid = snapshot.data!.isPaid;
 
-                if (request.status == RequestsRecordStatusEnum.completed) {
+                if (isPaid) {
                   return Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Text(
-                          'Driver: ${ride.driver.firstName} ${ride.driver.lastName}', style: PoppinsTextStyles.headlineMediumRegular),
-                      Text('PHP $price', style: PoppinsTextStyles.headlineMediumRegular),
-                      StreamBuilder(
-                          stream: _isPaid,
-                          builder: (context, snapshot) {
-                            if (snapshot.hasError) {
-                              return Text('$snapshot.error.toString()');
-                            }
-                            if (snapshot.hasData) {
-                              final isPaid = snapshot.data as bool;
-                              if (!isPaid) {
-                                return Text(
-                                    'You have arrived at your destination. Please pay the driver',
-                                    style: PoppinsTextStyles
-                                        .headlineMediumRegular);
-                              }
-
-                              Navigator.pushAndRemoveUntil(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          const DashboardWidget()),
-                                  (route) => false);
-                              return Text('Payment has been completed');
-                            } else {
-                              return const CircularProgressIndicator();
-                            }
-                          }),
+                      Text('You have reached your destination',
+                          style: PoppinsTextStyles.headlineMediumRegular),
+                      CustomRoundedButtom(
+                          title: 'Return to Dashboard',
+                          onPressed: () {
+                            Navigator.pushAndRemoveUntil(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        const DashboardWidget()),
+                                (route) => false);
+                          })
                     ],
                   );
                 }
@@ -289,10 +276,14 @@ class _WatchRideState extends State<WatchRide> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text(
-                          'Driver: ${ride.driver.firstName} ${ride.driver.lastName}', style: PoppinsTextStyles.headlineMediumRegular),
-                      Text('Remaining Seats: ${seats - occupiedSeats}', style: PoppinsTextStyles.headlineSmallRegular),
-                      Text('PHP $price', style: PoppinsTextStyles.headlineMediumRegular),
-                      Text('Waiting for the driver to accept your request', style: PoppinsTextStyles.bodyMediumRegular),
+                          'Driver: ${ride.driver.firstName} ${ride.driver.lastName}',
+                          style: PoppinsTextStyles.headlineMediumRegular),
+                      Text('Remaining Seats: ${seats - occupiedSeats}',
+                          style: PoppinsTextStyles.headlineSmallRegular),
+                      Text('PHP $price',
+                          style: PoppinsTextStyles.headlineMediumRegular),
+                      Text('Waiting for the driver to accept your request',
+                          style: PoppinsTextStyles.bodyMediumRegular),
                       CustomRoundedButtom(
                           title: 'Cancel',
                           onPressed: () {
@@ -317,7 +308,6 @@ class _WatchRideState extends State<WatchRide> {
                   );
                 }
 
-
                 if (ride.status == RidesRecordStatusEnum.ongoing) {
                   final seats = ride.driver.vehicle['seatNumber'] as int;
                   final occupiedSeats =
@@ -335,7 +325,31 @@ class _WatchRideState extends State<WatchRide> {
                       Text('PHP $price',
                           style: PoppinsTextStyles.headlineMediumRegular),
                       Text(
-                          'Drive has started. Please wait for the driver to arrive at your destination...',),
+                        'Drive has started. Please wait for the driver to arrive at your destination...',
+                      ),
+                    ],
+                  );
+                }
+
+                if (request.status == RequestsRecordStatusEnum.accepted) {
+                  final seats = ride.driver.vehicle['seatNumber'] as int;
+                  final occupiedSeats =
+                      ride.bookings == null ? 0 : ride.bookings!.length;
+
+                  return Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                          'Driver: ${ride.driver.firstName} ${ride.driver.lastName}',
+                          style: PoppinsTextStyles.headlineMediumRegular),
+                      Text('Remaining Seats: ${seats - occupiedSeats}',
+                          style: PoppinsTextStyles.headlineSmallRegular),
+                      Text('PHP $price',
+                          style: PoppinsTextStyles.headlineMediumRegular),
+                      Text(
+                        'Driver has accepted your request. Please wait for the driver to start the ride...',
+                      ),
                     ],
                   );
                 }

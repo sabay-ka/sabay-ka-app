@@ -25,6 +25,7 @@ enum RidesRecordFieldsEnum {
   collectionName,
   parkingLat,
   parkingLng,
+  isFromTomasClaudio,
   status,
   driver,
   bookings
@@ -36,7 +37,9 @@ enum RidesRecordStatusEnum {
   @JsonValue('ongoing')
   ongoing,
   @JsonValue('cancelled')
-  cancelled
+  cancelled,
+  @JsonValue('completed')
+  completed
 }
 
 @JsonSerializable()
@@ -50,6 +53,7 @@ final class RidesRecord extends _i1.BaseRecord {
     required this.parkingLat,
     required this.parkingLng,
     required this.status,
+    required this.isFromTomasClaudio,
     required this.driver,
     this.bookings,
   });
@@ -67,6 +71,7 @@ final class RidesRecord extends _i1.BaseRecord {
       collectionName: json['collectionName'],
       parkingLat: (json['parkingLat'] as num).toDouble(),
       parkingLng: (json['parkingLng'] as num).toDouble(),
+      isFromTomasClaudio: json['isFromTomasClaudio'] as bool,
       status: RidesRecordStatusEnum.values.firstWhere(
           (e) => e.toString() == 'RidesRecordStatusEnum.${json['status']}'),
       driver: DriversRecord.fromJson(
@@ -97,6 +102,8 @@ final class RidesRecord extends _i1.BaseRecord {
   final RidesRecordStatusEnum status;
 
   final DriversRecord driver;
+  
+  final bool isFromTomasClaudio;
 
   final List<BookingsRecord>? bookings;
 
@@ -128,6 +135,7 @@ final class RidesRecord extends _i1.BaseRecord {
     RidesRecordStatusEnum? status,
     DriversRecord? driver,
     List<BookingsRecord>? bookings,
+    bool? isFromTomasClaudio,
   }) {
     return RidesRecord(
       id: id,
@@ -137,6 +145,7 @@ final class RidesRecord extends _i1.BaseRecord {
       collectionName: collectionName,
       parkingLat: parkingLat ?? this.parkingLat,
       parkingLng: parkingLng ?? this.parkingLng,
+      isFromTomasClaudio: isFromTomasClaudio ?? this.isFromTomasClaudio,
       status: status ?? this.status,
       driver: driver ?? this.driver,
       bookings: bookings ?? this.bookings,
@@ -177,6 +186,7 @@ final class RidesRecord extends _i1.BaseRecord {
     required double parkingLng,
     required RidesRecordStatusEnum status,
     required DriversRecord driver,
+    required bool isFromTomasClaudio,
     List<BookingsRecord>? bookings,
   }) {
     final jsonMap = RidesRecord(
@@ -187,6 +197,7 @@ final class RidesRecord extends _i1.BaseRecord {
       collectionName: $collectionName,
       parkingLat: parkingLat,
       parkingLng: parkingLng,
+      isFromTomasClaudio: isFromTomasClaudio,
       status: status,
       driver: driver,
       bookings: bookings,

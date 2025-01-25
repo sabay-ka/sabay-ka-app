@@ -4,7 +4,6 @@ import 'package:sabay_ka/app/text_style.dart';
 import 'package:sabay_ka/common/constant/assets.dart';
 import 'package:sabay_ka/common/theme.dart';
 import 'package:sabay_ka/common/widget/common_container.dart';
-import 'dart:async';
 import 'package:sabay_ka/main.dart';
 import 'package:sabay_ka/services/pocketbase_service.dart';
 
@@ -18,82 +17,6 @@ class WalletWidget extends StatelessWidget {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          //  //Align(
-          //  alignment: Alignment.centerRight,
-          //  child: SizedBox(
-          //    width: SizeUtils.width / 3,
-          //    child: CustomRoundedButtom(
-          //      fontWeight: FontWeight.w500,
-          //      title: "Add Money",
-          //      onPressed: () {
-          //        Navigator.push(
-          //          context,
-          //          MaterialPageRoute(
-          //            builder: (context) => AddMoneyWidget(),
-          //          ),
-          //        );
-          //      },
-          //      borderColor: CustomTheme.appColor,
-          //      color: Colors.transparent,
-          //      textColor: CustomTheme.appColor,
-          //    ),
-          //  ),
-          //),
-          //SizedBox(height: 10.hp),
-          //Row(
-          //  children: [
-          //    Expanded(
-          //      child: Container(
-          //        height: SizeUtils.width / 3,
-          //        decoration: BoxDecoration(
-          //          color: CustomTheme.appColor.withOpacity(0.08),
-          //          borderRadius: BorderRadius.circular(12),
-          //          border: Border.all(color: CustomTheme.appColor),
-          //        ),
-          //        child: Column(
-          //          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          //          children: [
-          //            Text(
-          //              "\$500",
-          //              style: PoppinsTextStyles.titleMediumRegular,
-          //            ),
-          //            Text(
-          //              "Available Balance",
-          //              style: PoppinsTextStyles.subheadSmallRegular
-          //                  .copyWith(color: CustomTheme.darkColor),
-          //            )
-          //          ],
-          //        ),
-          //      ),
-          //    ),
-          //    SizedBox(width: 30.wp),
-          //    Expanded(
-          //      child: Container(
-          //        height: SizeUtils.width / 3,
-          //        decoration: BoxDecoration(
-          //          color: CustomTheme.appColor.withOpacity(0.08),
-          //          borderRadius: BorderRadius.circular(12),
-          //          border: Border.all(color: CustomTheme.appColor),
-          //        ),
-          //        child: Column(
-          //          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          //          children: [
-          //            Text(
-          //              "\$200",
-          //              style: PoppinsTextStyles.titleMediumRegular,
-          //            ),
-          //            Text(
-          //              "Total Expend",
-          //              style: PoppinsTextStyles.subheadSmallRegular
-          //                  .copyWith(color: CustomTheme.darkColor),
-          //            )
-          //          ],
-          //        ),
-          //      ),
-          //    ),
-          //  ],
-          //),
-          //SizedBox(height: 20.hp),
           Text(
             "Payment History",
             style: PoppinsTextStyles.subheadLargeRegular.copyWith(

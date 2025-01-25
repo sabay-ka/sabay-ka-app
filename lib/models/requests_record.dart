@@ -25,6 +25,7 @@ enum RequestsRecordFieldsEnum {
   passenger,
   destLat,
   destLong,
+  isFromTomasClaudio,
   rowIdx,
   columnIdx,
   status
@@ -58,6 +59,7 @@ final class RequestsRecord extends _i1.BaseRecord {
     required this.rowIdx,
     required this.columnIdx,
     required this.status,
+    required this.isFromTomasClaudio,
   });
 
   factory RequestsRecord.fromJson(Map<String, dynamic> json) {
@@ -70,6 +72,7 @@ final class RequestsRecord extends _i1.BaseRecord {
       ride: json['ride'],
       passenger: json['passenger'],
       destLat: (json['destLat'] as num).toDouble(),
+      isFromTomasClaudio: json['isFromTomasClaudio'] as bool,
       destLong: (json['destLong'] as num).toDouble(),
       rowIdx: (json['rowIdx'] as num).toDouble(),
       columnIdx: (json['columnIdx'] as num).toDouble(),
@@ -103,6 +106,8 @@ final class RequestsRecord extends _i1.BaseRecord {
 
   final double columnIdx;
 
+  final bool isFromTomasClaudio;
+
   final RequestsRecordStatusEnum status;
 
   static const $collectionId = 'jx7actt4u4sjv31';
@@ -122,7 +127,8 @@ final class RequestsRecord extends _i1.BaseRecord {
       'destLong': destLong,
       'rowIdx': rowIdx,
       'columnIdx': columnIdx,
-      'status': status
+      'status': status,
+      'isFromTomasClaudio': isFromTomasClaudio,
     };
   }
 
@@ -133,6 +139,7 @@ final class RequestsRecord extends _i1.BaseRecord {
     double? destLong,
     double? rowIdx,
     double? columnIdx,
+    bool? isFromTomasClaudio,
     RequestsRecordStatusEnum? status,
   }) {
     return RequestsRecord(
@@ -142,6 +149,7 @@ final class RequestsRecord extends _i1.BaseRecord {
       collectionId: collectionId,
       collectionName: collectionName,
       ride: ride ?? this.ride,
+      isFromTomasClaudio: isFromTomasClaudio ?? this.isFromTomasClaudio,
       passenger: passenger ?? this.passenger,
       destLat: destLat ?? this.destLat,
       destLong: destLong ?? this.destLong,
@@ -189,6 +197,7 @@ final class RequestsRecord extends _i1.BaseRecord {
     required double destLong,
     required double rowIdx,
     required double columnIdx,
+    required bool isFromTomasClaudio,
     required RequestsRecordStatusEnum status,
   }) {
     final jsonMap = RequestsRecord(
@@ -203,6 +212,7 @@ final class RequestsRecord extends _i1.BaseRecord {
       destLong: destLong,
       rowIdx: rowIdx,
       columnIdx: columnIdx,
+      isFromTomasClaudio: isFromTomasClaudio,
       status: status,
     ).toJson();
     final Map<String, dynamic> result = {};

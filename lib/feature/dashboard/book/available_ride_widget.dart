@@ -13,9 +13,15 @@ import 'package:sabay_ka/models/rides_record.dart';
 import 'package:sabay_ka/services/pocketbase_service.dart';
 
 class AvailableRideWidget extends StatefulWidget {
-  const AvailableRideWidget({super.key, required this.destination});
+  const AvailableRideWidget(
+      {super.key,
+      required this.destination,
+      required this.isFromTomasClaudio,
+      required this.note});
 
   final GeoPoint destination;
+  final bool isFromTomasClaudio;
+  final String note;
 
   @override
   State<AvailableRideWidget> createState() => _AvailableRideWidgetState();
@@ -38,7 +44,8 @@ class _AvailableRideWidgetState extends State<AvailableRideWidget> {
       StreamController<List<RideWithReviews>>(
     onListen: () async {
       void fetch() async {
-        final rides = await locator<PocketbaseService>().getRides();
+        final rides = await locator<PocketbaseService>()
+            .getRides(widget.isFromTomasClaudio);
         final ridesWithReviews = await Future.wait(rides.map((ride) async {
           final res = await Future.wait([
             locator<PocketbaseService>().getReviewsByDriver(ride.driver.id),
@@ -215,24 +222,17 @@ class _AvailableRideWidgetState extends State<AvailableRideWidget> {
           ),
           CustomRoundedButtom(
               title: 'Confirm',
-              isDisabled: _selectedRide == null,
               onPressed: () async {
-                final selectedSeat = await Navigator.push(context,
-                    MaterialPageRoute(builder: (context) {
-                  return SelectSeat(
-                      destination: widget.destination,
-                      ride: _selectedRide!.ride);
-                }));
-                if (selectedSeat == null) return;
-
                 try {
                   final request = await locator<PocketbaseService>()
                       .createRequest(
                           rideId: _selectedRide!.ride.id,
                           destLat: widget.destination.latitude,
                           destLong: widget.destination.longitude,
-                          rowIdx: selectedSeat!.rowI,
-                          columnIdx: selectedSeat!.colI);
+                          rowIdx: 0,
+                          columnIdx: 0,
+                          isFromTomasClaudio: widget.isFromTomasClaudio,
+                          note: widget.note);
 
                   if (context.mounted) {
                     Navigator.pushAndRemoveUntil(

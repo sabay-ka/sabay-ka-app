@@ -63,6 +63,7 @@ final class DriversRecord extends _i1.AuthRecord {
   });
 
   factory DriversRecord.fromJson(Map<String, dynamic> json) {
+    debugPrint(json.toString());
     return DriversRecord(
       id: json['id'],
       created: DateTime.parse(json['created']),

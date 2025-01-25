@@ -62,7 +62,7 @@ class AvailableRideBoxDesign extends StatelessWidget {
                 )
               ]),
               Image.asset(
-                  Assets.bmwCario,
+                  Assets.bikeImage,
               )
             ],
           ),

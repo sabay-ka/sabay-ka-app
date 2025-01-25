@@ -6,6 +6,7 @@ import 'package:sabay_ka/common/utils/size_utils.dart';
 import 'package:sabay_ka/common/widget/common_popup_box.dart';
 import 'package:sabay_ka/feature/auth/welcomeScreen/widget/welcome_widget.dart';
 import 'package:sabay_ka/feature/drawer/aboutUs/about_us_widget.dart';
+import 'package:sabay_ka/feature/drawer/fareMatrix/fare_matrix_widget.dart';
 import 'package:sabay_ka/feature/drawer/helpSupport/help_support_widget.dart';
 import 'package:sabay_ka/feature/drawer/history/history_widget.dart';
 import 'package:sabay_ka/feature/drawer/settings/setting_widget.dart';
@@ -123,6 +124,7 @@ class CustomDrawer extends StatelessWidget {
 
   final List drawerItems = [
     "History",
+    "Fare Matrix",
     "About Us",
     "Settings",
     "Help & Suport",
@@ -130,6 +132,7 @@ class CustomDrawer extends StatelessWidget {
   ];
   final List drawerItemIcons = [
     Assets.historyIcon,
+    Assets.discountIcon,
     Assets.aboutUsIcon,
     Assets.settingsIcon,
     Assets.helpAndSupportIcon,
@@ -137,6 +140,7 @@ class CustomDrawer extends StatelessWidget {
   ];
   final List screens = [
     const HistoryWidget(),
+    const FareMatrixWidget(),
     const AboutUsWidget(),
     SettingWidget(),
     const HelpSupportWidget(),

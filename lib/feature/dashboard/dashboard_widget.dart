@@ -5,9 +5,6 @@ import 'package:sabay_ka/common/theme.dart';
 import 'package:sabay_ka/feature/dashboard/book/book_widget.dart';
 import 'package:sabay_ka/feature/dashboard/profile/profile_widget.dart';
 import 'package:sabay_ka/feature/dashboard/wallet/wallet_widget.dart';
-import 'package:sabay_ka/feature/rideFlow/watch_ride.dart';
-import 'package:sabay_ka/main.dart';
-import 'package:sabay_ka/services/pocketbase_service.dart';
 
 class DashboardWidget extends StatefulWidget {
   const DashboardWidget({super.key});
@@ -29,27 +26,6 @@ class _DashboardWidgetState extends State<DashboardWidget> {
     const BookWidget(),
     const ProfileWidget(),
   ];
-
-  @override
-    void initState() {
-      // If user has an ongoing request, navigate to WatchRide
-      locator<PocketbaseService>().getOngoingRequest()
-        .then((request) {
-          if (request != null && context.mounted) {
-            Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(
-                builder: (context) => WatchRide(
-                  requestId: request.id,
-                  rideId: request.ride,
-                ),
-              ),
-              (route) => false,
-            );
-          }
-        });
-      super.initState();
-    }
 
   @override
   Widget build(BuildContext context) {
